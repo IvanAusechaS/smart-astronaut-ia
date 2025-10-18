@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  smart_backend:
+    build: ./smart_backend
+    container_name: smart_backend
+    ports:
+      - "8000:8000"
+    networks:
+      - smart_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  smart_frontend:
+    build: ./smart_frontend
+    container_name: smart_frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_BACKEND_URL=http://smart_backend:8000
+    depends_on:
+      - smart_backend
+    networks:
+      - smart_network
+
+networks:
+  smart_network:
+    driver: bridge
