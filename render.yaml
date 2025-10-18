@@ -5,8 +5,9 @@ services:
     plan: free
     region: ohio
     branch: main
-    dockerfilePath: ./smart_backend/Dockerfile
-    dockerContext: ./smart_backend
+    rootDir: smart_backend
+    dockerfilePath: ./Dockerfile
+    dockerContext: ./
     autoDeploy: true
     envVars:
       - key: PYTHONUNBUFFERED
