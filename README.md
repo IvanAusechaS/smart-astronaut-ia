@@ -164,6 +164,80 @@ Puedes crear un archivo `.env` en `smart_frontend/`:
 VITE_BACKEND_URL=http://localhost:8000
 ```
 
+## Despliegue en Producción
+
+### 🚀 URLs de Producción
+
+- **Frontend (Vercel):** https://smart-astronaut.vercel.app
+- **Backend (Render):** https://smart-astronaut-backend.onrender.com
+- **Backend Docs:** https://smart-astronaut-backend.onrender.com/docs
+
+### Configuración de CI/CD
+
+El proyecto utiliza GitHub Actions para despliegue automatizado al hacer push o pull request en la rama `main`.
+
+#### Variables de Entorno Requeridas en GitHub Secrets
+
+Para que el despliegue automatizado funcione, necesitas configurar los siguientes secrets en tu repositorio de GitHub:
+
+1. **RENDER_API_KEY** - Token de autenticación de Render
+   - Obtenerlo en: [Render Dashboard → Account Settings → API Keys](https://dashboard.render.com/u/settings)
+   
+2. **RENDER_SERVICE_ID** - ID del servicio en Render
+   - Encontrarlo en la URL del servicio: `https://dashboard.render.com/web/srv-XXXXXXXXXXXXXXXX`
+   - El ID es la parte después de `srv-`
+   
+3. **VERCEL_TOKEN** - Token de autenticación de Vercel
+   - Crear en: [Vercel Dashboard → Account Settings → Tokens](https://vercel.com/account/tokens)
+   
+4. **VERCEL_ORG_ID** - ID de tu organización/cuenta de Vercel
+   - Ejecutar en la raíz del proyecto: `vercel link`
+   - El ID se guarda en `.vercel/project.json`
+   
+5. **VERCEL_PROJECT_ID** - ID del proyecto en Vercel
+   - También disponible después de ejecutar `vercel link`
+   - Se guarda en `.vercel/project.json`
+
+#### Cómo Configurar los Secrets en GitHub
+
+1. Ve a tu repositorio en GitHub
+2. Click en **Settings** → **Secrets and variables** → **Actions**
+3. Click en **New repository secret**
+4. Agrega cada uno de los 5 secrets mencionados arriba
+
+### Configuración Manual de Despliegue
+
+#### Backend en Render
+
+1. Crea una cuenta en [Render](https://render.com)
+2. Conecta tu repositorio de GitHub
+3. Render detectará automáticamente el archivo `render.yaml`
+4. El servicio se desplegará usando Docker desde `smart_backend/Dockerfile`
+5. Variables de entorno configuradas automáticamente:
+   - `PYTHONUNBUFFERED=1`
+   - `PORT=8000`
+   - `CORS_ORIGINS=https://smart-astronaut.vercel.app,https://smart-astronaut-*.vercel.app`
+
+#### Frontend en Vercel
+
+1. Crea una cuenta en [Vercel](https://vercel.com)
+2. Importa tu repositorio de GitHub
+3. Vercel detectará automáticamente el archivo `vercel.json`
+4. Configuración automática:
+   - Build command: `cd smart_frontend && npm install && npm run build`
+   - Output directory: `smart_frontend/dist`
+   - Variable de entorno: `VITE_BACKEND_URL=https://smart-astronaut-backend.onrender.com`
+
+### Flujo de CI/CD
+
+Cuando haces push a la rama `main`:
+
+1. **Test Job** - Ejecuta las pruebas del backend con pytest
+2. **Deploy Backend** - Si las pruebas pasan, despliega en Render
+3. **Deploy Frontend** - Si las pruebas pasan, despliega en Vercel
+
+Los pull requests solo ejecutan las pruebas sin desplegar.
+
 ## Proximos Pasos
 
 1. **Implementar algoritmos de búsqueda** en `smart_backend/algorithms/`
