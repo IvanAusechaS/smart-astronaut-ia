@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: smart-astronaut-backend
+    env: docker
+    plan: free
+    region: ohio
+    branch: main
+    dockerfilePath: ./smart_backend/Dockerfile
+    dockerContext: ./smart_backend
+    autoDeploy: true
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PORT
+        value: "8000"
+      - key: CORS_ORIGINS
+        value: "https://smart-astronaut.vercel.app,https://smart-astronaut-*.vercel.app"

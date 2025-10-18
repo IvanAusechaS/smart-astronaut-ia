@@ -5,13 +5,21 @@ from pydantic import BaseModel
 from typing import Dict, Any, Optional
 
 from core.executor import run_algorithm, get_algorithm_info
+from routes.map_routes import router as map_router
 
 app = FastAPI(title="SmartAstronaut Backend", version="1.0.0")
 
-# Configurar CORS
+# Configurar CORS - Leer origenes permitidos desde variable de entorno
+cors_origins = os.getenv("CORS_ORIGINS", "*")
+if cors_origins != "*":
+    # Si se especifica, convertir a lista separada por comas
+    origins_list = [origin.strip() for origin in cors_origins.split(",")]
+else:
+    origins_list = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En produccion, especificar los origenes permitidos
+    allow_origins=origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -115,3 +123,7 @@ async def get_algorithm_details(name: str):
     if not info.get("available"):
         raise HTTPException(status_code=404, detail=f"Algoritmo '{name}' no encontrado")
     return info
+
+
+# Incluir router de mapas
+app.include_router(map_router, prefix="/api/map", tags=["maps"])

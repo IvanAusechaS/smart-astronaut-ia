@@ -1,0 +1,7 @@
+smart_backend
+.git
+.github
+docker-compose.yml
+*.md
+.dockerignore
+mapa.txt

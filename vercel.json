@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "name": "smart-astronaut",
+  "buildCommand": "cd smart_frontend && npm install && npm run build",
+  "outputDirectory": "smart_frontend/dist",
+  "installCommand": "cd smart_frontend && npm install",
+  "framework": null,
+  "env": {
+    "VITE_BACKEND_URL": "https://smart-astronaut-backend.onrender.com"
+  },
+  "routes": [
+    {
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
