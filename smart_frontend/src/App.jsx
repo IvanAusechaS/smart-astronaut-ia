@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import Home from './pages/Home'
 import './App.css'
 
 function App() {
@@ -24,27 +25,26 @@ function App() {
   return (
     <div className="app-container">
       <div className="header">
-        <h1>SmartAstronaut</h1>
-        <h2>Frontend funcionando</h2>
+        <h1>Smart Astronaut Solver</h1>
+        <p className="subtitle">Sistema de algoritmos de busqueda inteligente</p>
       </div>
       
-      <div className="content">
-        <div className="status-card">
-          <h3>Estado del Backend</h3>
-          <p className="status-message">{backendStatus}</p>
-          <p className="backend-url">URL: {backendUrl}</p>
+      <div className="status-bar">
+        <div className="status-indicator">
+          <span className={`status-dot ${backendStatus.includes('Conectado') ? 'connected' : 'disconnected'}`}></span>
+          <span className="status-text">{backendStatus}</span>
         </div>
-
-        <div className="info-card">
-          <h3>Informacion del Proyecto</h3>
-          <ul>
-            <li>Frontend: React + Vite</li>
-            <li>Backend: FastAPI + Python 3.11</li>
-            <li>Puerto Frontend: 5173</li>
-            <li>Puerto Backend: 8000</li>
-          </ul>
+        <div className="backend-info">
+          <span className="backend-url">{backendUrl}</span>
         </div>
       </div>
+
+      <Home />
+
+      <footer className="app-footer">
+        <p>SmartAstronaut - Proyecto de Inteligencia Artificial</p>
+        <p className="tech-stack">React + Vite | FastAPI + Python 3.11 | Docker</p>
+      </footer>
     </div>
   )
 }
