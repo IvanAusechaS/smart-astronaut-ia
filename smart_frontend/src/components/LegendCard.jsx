@@ -8,12 +8,12 @@ import './LegendCard.css';
 const LegendCard = () => {
   const legendItems = [
     { color: '#ffffff', label: 'Libre', value: 0, icon: '⬜' },
-    { color: '#7a7a7a', label: 'Obstáculo', value: 1, icon: '🚧' },
-    { color: '#007bff', label: 'Astronauta', value: 2, icon: '�‍🚀' },
+    { color: '#7a7a7a', label: 'Obstáculo', value: 1, icon: '⛰️' },
+    { color: '#007bff', label: 'Astronauta', value: 2, icon: '�' },
     { color: '#8b4513', label: 'Rocoso (costo 3)', value: 3, icon: '🪨' },
     { color: '#b22222', label: 'Volcánico (costo 5)', value: 4, icon: '🌋' },
-    { color: '#ffff00', label: 'Nave (combustible)', value: 5, icon: '�' },
-    { color: '#00ff00', label: 'Muestra Científica', value: 6, icon: '�' },
+    { color: '#ffff00', label: 'Nave (combustible)', value: 5, icon: '🚀' },
+    { color: '#00ff00', label: 'Muestra Científica', value: 6, icon: '📦' },
   ];
 
   return (
@@ -35,10 +35,13 @@ const LegendCard = () => {
       </div>
 
       <div className="legend-note">
-        <span className="note-icon">💡</span>
+        <span className="note-icon"></span>
         <p className="note-text">
-          El astronauta debe recolectar todas las muestras científicas y regresar a la nave auxiliar. 
-          La nave (celda 5) proporciona combustible interno para 20 movimientos con costo reducido (x0.5).
+          <strong>Objetivo:</strong> El astronauta 🚶 debe recolectar las 3 muestras científicas 📦.
+          <br />
+          <strong>Nave auxiliar 🚀:</strong> Proporciona combustible para 20 movimientos con costo reducido (×0.5).
+          <br />
+          <strong>Costos:</strong> Libre=1, Rocoso=3, Volcánico=5. Con combustible todo es ×0.5.
         </p>
       </div>
     </div>

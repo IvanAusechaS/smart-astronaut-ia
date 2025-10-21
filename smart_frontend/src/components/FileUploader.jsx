@@ -120,7 +120,7 @@ const FileUploader = () => {
             </>
           ) : (
             <>
-              <span>🚀</span>
+              <span></span>
               Cargar Mapa
             </>
           )}
@@ -131,7 +131,7 @@ const FileUploader = () => {
           disabled={loading}
           className="btn btn-secondary"
         >
-          <span>🔄</span>
+          <span></span>
           Reiniciar
         </button>
       </div>
