@@ -63,15 +63,28 @@ async def list_algorithms():
         ]
         
         # Obtener informacion detallada de cada algoritmo
-        algorithms_info = []
+        algorithms_list = []
         for name in files:
             info = get_algorithm_info(name)
-            algorithms_info.append(info)
+            # Crear display_name amigable
+            display_names = {
+                "bfs": "BFS (Búsqueda en Anchura)",
+                "dfs": "DFS (Búsqueda en Profundidad)",
+                "uniform_cost": "Costo Uniforme",
+                "greedy": "Búsqueda Voraz",
+                "astar": "A* (A Estrella)"
+            }
+            
+            algorithms_list.append({
+                "name": name,
+                "display_name": display_names.get(name, name.upper()),
+                "description": info.get("docstring", "Sin descripción"),
+                "available": info.get("available", False)
+            })
         
         return {
-            "algorithms": files,
-            "count": len(files),
-            "details": algorithms_info
+            "algorithms": algorithms_list,
+            "count": len(algorithms_list)
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error listando algoritmos: {str(e)}")

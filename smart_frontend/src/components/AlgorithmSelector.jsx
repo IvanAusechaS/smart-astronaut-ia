@@ -22,6 +22,7 @@ const AlgorithmSelector = ({ onResultsChange }) => {
 
   useEffect(() => {
     if (onResultsChange) {
+      console.log('Enviando resultados al padre:', results);
       onResultsChange(results);
     }
   }, [results, onResultsChange]);
@@ -70,9 +71,24 @@ const AlgorithmSelector = ({ onResultsChange }) => {
         goal: metadata.spacecraft_position,
       };
 
-      const result = await runAlgorithm(selectedAlgorithm, params);
+      console.log('Ejecutando algoritmo:', selectedAlgorithm);
+      console.log('Parámetros:', params);
+
+      const response = await runAlgorithm(selectedAlgorithm, params);
+      console.log('Respuesta del backend:', response);
+      
+      // El backend devuelve { algorithm, status, execution_time, result }
+      // Combinamos execution_time con el result para el componente
+      const result = {
+        ...response.result,
+        execution_time: response.execution_time,
+        algorithm: response.algorithm
+      };
+      
+      console.log('Resultado procesado:', result);
       setResults(result);
     } catch (err) {
+      console.error('Error completo:', err);
       setError(err.message || 'Error al ejecutar búsqueda');
       console.error('Execution error:', err);
     } finally {
@@ -122,7 +138,7 @@ const AlgorithmSelector = ({ onResultsChange }) => {
               </>
             ) : (
               <>
-                <span>🚀</span>
+                <span></span>
                 Ejecutar Búsqueda
               </>
             )}
@@ -130,7 +146,7 @@ const AlgorithmSelector = ({ onResultsChange }) => {
 
           {results && (
             <button onClick={handleClear} className="btn btn-clear">
-              <span>🗑️</span>
+              <span></span>
               Limpiar
             </button>
           )}

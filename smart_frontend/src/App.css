@@ -150,6 +150,11 @@ body {
   min-height: 600px;
 }
 
+.bottom-panel {
+  margin-top: 1.5rem;
+  width: 100%;
+}
+
 .map-section {
   background: var(--bg-secondary);
   border-radius: 1rem;

@@ -22,36 +22,36 @@ const StatsPanel = () => {
     {
       label: 'Dimensiones',
       value: `${metadata.rows || 10} × ${metadata.cols || 10}`,
-      icon: '📏',
+      icon: '',
     },
     {
       label: 'Obstáculos',
       value: metadata.obstacles || 0,
-      icon: '🚧',
+      icon: '',
       color: '#7a7a7a',
     },
     {
       label: 'Muestras Científicas',
       value: metadata.scientific_samples || 0,
-      icon: '🔬',
+      icon: '',
       color: '#00ff00',
     },
     {
       label: 'Nave Auxiliar',
       value: metadata.spacecraft || 0,
-      icon: '🛸',
+      icon: '',
       color: '#ffff00',
     },
     {
       label: 'Terreno Rocoso',
       value: metadata.rocky_terrain || 0,
-      icon: '🪨',
+      icon: '',
       color: '#8b4513',
     },
     {
       label: 'Terreno Volcánico',
       value: metadata.volcanic_terrain || 0,
-      icon: '🌋',
+      icon: '',
       color: '#b22222',
     },
   ];
@@ -62,7 +62,7 @@ const StatsPanel = () => {
       value: metadata.astronaut_position
         ? `[${metadata.astronaut_position.join(', ')}]`
         : 'No definido',
-      icon: '🧑‍🚀',
+      icon: '',
       color: '#007bff',
     },
     {
@@ -70,7 +70,7 @@ const StatsPanel = () => {
       value: metadata.spacecraft_position
         ? `[${metadata.spacecraft_position.join(', ')}]`
         : 'No definido',
-      icon: '�',
+      icon: '',
       color: '#ffff00',
     },
   ];

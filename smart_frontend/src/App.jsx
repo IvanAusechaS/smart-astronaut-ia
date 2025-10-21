@@ -56,7 +56,6 @@ function Dashboard() {
           <div className="left-panel">
             <FileUploader />
             <AlgorithmSelector onResultsChange={handleResultsChange} />
-            <StatsPanel />
           </div>
 
           <div className="center-panel">
@@ -85,6 +84,10 @@ function Dashboard() {
           <div className="right-panel">
             <LegendCard />
           </div>
+        </div>
+
+        <div className="bottom-panel">
+          <StatsPanel />
         </div>
       </main>
 
