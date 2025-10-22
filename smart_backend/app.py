@@ -66,13 +66,13 @@ async def list_algorithms():
         algorithms_list = []
         for name in files:
             info = get_algorithm_info(name)
-            # Crear display_name amigable
+            # Crear display_name según el enunciado del proyecto
             display_names = {
-                "bfs": "BFS (Búsqueda en Anchura)",
-                "dfs": "DFS (Búsqueda en Profundidad)",
+                "bfs": "Amplitud",
+                "dfs": "Profundidad evitando ciclos",
                 "uniform_cost": "Costo Uniforme",
-                "greedy": "Búsqueda Voraz",
-                "astar": "A* (A Estrella)"
+                "greedy": "Avara",
+                "astar": "A*"
             }
             
             algorithms_list.append({

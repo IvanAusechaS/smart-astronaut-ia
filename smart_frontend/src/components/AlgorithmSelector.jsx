@@ -1,6 +1,7 @@
 /**
  * AlgorithmSelector Component
  * Selector de algoritmos con ejecución y resultados
+ * Incluye selector de orden de operadores para DFS
  */
 
 import { useState, useEffect } from 'react';
@@ -11,10 +12,18 @@ import './AlgorithmSelector.css';
 const AlgorithmSelector = ({ onResultsChange }) => {
   const { mapData, metadata } = useMap();
   const [algorithms, setAlgorithms] = useState([]);
+  const [searchType, setSearchType] = useState(''); // 'uninformed' o 'informed'
   const [selectedAlgorithm, setSelectedAlgorithm] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
+  
+  // Estado para el orden de operadores del DFS
+  const [operatorOrder, setOperatorOrder] = useState(['arriba', 'abajo', 'izquierda', 'derecha']);
+
+  // Clasificación de algoritmos según el enunciado
+  const uninformedAlgorithms = ['bfs', 'uniform_cost', 'dfs'];
+  const informedAlgorithms = ['greedy', 'astar'];
 
   useEffect(() => {
     loadAlgorithms();
@@ -31,18 +40,41 @@ const AlgorithmSelector = ({ onResultsChange }) => {
     try {
       const data = await getAlgorithms();
       setAlgorithms(data.algorithms || []);
-      if (data.algorithms && data.algorithms.length > 0) {
-        setSelectedAlgorithm(data.algorithms[0].name);
-      }
     } catch (err) {
       console.error('Error loading algorithms:', err);
     }
   };
 
+  // Filtrar algoritmos según el tipo de búsqueda seleccionado
+  const getFilteredAlgorithms = () => {
+    if (!searchType) return [];
+    
+    const filterList = searchType === 'uninformed' ? uninformedAlgorithms : informedAlgorithms;
+    return algorithms.filter(algo => filterList.includes(algo.name));
+  };
+
+  // Resetear algoritmo seleccionado cuando cambia el tipo de búsqueda
+  useEffect(() => {
+    setSelectedAlgorithm('');
+    setResults(null);
+    setError(null);
+    // Resetear orden de operadores al valor por defecto
+    setOperatorOrder(['arriba', 'abajo', 'izquierda', 'derecha']);
+  }, [searchType]);
+
   const handleExecute = async () => {
     if (!selectedAlgorithm) {
       setError('Selecciona un algoritmo');
       return;
+    }
+    
+    // Validar operadores duplicados si es DFS
+    if (selectedAlgorithm === 'dfs') {
+      const uniqueOperators = new Set(operatorOrder);
+      if (uniqueOperators.size !== operatorOrder.length) {
+        setError('Error: Has seleccionado operadores duplicados. Cada dirección (Arriba, Abajo, Izquierda, Derecha) debe aparecer exactamente una vez. Por favor, asegúrate de que cada posición tenga un operador diferente.');
+        return;
+      }
     }
 
     if (!mapData) {
@@ -70,6 +102,11 @@ const AlgorithmSelector = ({ onResultsChange }) => {
         start: metadata.astronaut_position,
         goal: metadata.spacecraft_position,
       };
+      
+      // Si el algoritmo es DFS, agregar el orden de operadores
+      if (selectedAlgorithm === 'dfs') {
+        params.operator_order = operatorOrder;
+      }
 
       console.log('Ejecutando algoritmo:', selectedAlgorithm);
       console.log('Parámetros:', params);
@@ -101,29 +138,87 @@ const AlgorithmSelector = ({ onResultsChange }) => {
     setError(null);
   };
 
+  const filteredAlgorithms = getFilteredAlgorithms();
+
   return (
     <div className="algorithm-selector">
       <h3 className="selector-title">Búsqueda de Muestras</h3>
 
       <div className="selector-controls">
+        {/* PASO 1: Seleccionar tipo de búsqueda */}
         <div className="select-wrapper">
-          <label htmlFor="algorithm-select" className="select-label">
-            Algoritmo de Búsqueda
+          <label htmlFor="search-type-select" className="select-label">
+            Tipo de Búsqueda
           </label>
           <select
-            id="algorithm-select"
-            value={selectedAlgorithm}
-            onChange={(e) => setSelectedAlgorithm(e.target.value)}
+            id="search-type-select"
+            value={searchType}
+            onChange={(e) => setSearchType(e.target.value)}
             disabled={loading || !mapData}
             className="algorithm-select"
           >
-            {algorithms.map((algo) => (
-              <option key={algo.name} value={algo.name}>
-                {algo.display_name}
-              </option>
-            ))}
+            <option value="">-- Selecciona tipo de búsqueda --</option>
+            <option value="uninformed">No Informada</option>
+            <option value="informed">Informada</option>
           </select>
         </div>
+
+        {/* PASO 2: Seleccionar algoritmo específico */}
+        {searchType && (
+          <div className="select-wrapper">
+            <label htmlFor="algorithm-select" className="select-label">
+              {searchType === 'uninformed' 
+                ? 'Algoritmo (Amplitud / Costo Uniforme / Profundidad)' 
+                : 'Algoritmo (Avara / A*)'}
+            </label>
+            <select
+              id="algorithm-select"
+              value={selectedAlgorithm}
+              onChange={(e) => setSelectedAlgorithm(e.target.value)}
+              disabled={loading || !mapData || filteredAlgorithms.length === 0}
+              className="algorithm-select"
+            >
+              <option value="">-- Selecciona un algoritmo --</option>
+              {filteredAlgorithms.map((algo) => (
+                <option key={algo.name} value={algo.name}>
+                  {algo.display_name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        
+        {/* PASO 3: Configurar orden de operadores (solo para DFS) */}
+        {selectedAlgorithm === 'dfs' && (
+          <div className="operator-order-wrapper">
+            <label className="select-label">Orden de Operadores</label>
+            <div className="operator-order-grid">
+              {[0, 1, 2, 3].map((index) => (
+                <div key={index} className="operator-select-item">
+                  <label className="operator-label">{index + 1}°:</label>
+                  <select
+                    value={operatorOrder[index]}
+                    onChange={(e) => {
+                      const newOrder = [...operatorOrder];
+                      newOrder[index] = e.target.value;
+                      setOperatorOrder(newOrder);
+                    }}
+                    className="operator-select"
+                    disabled={loading}
+                  >
+                    <option value="arriba">⬆️ Arriba</option>
+                    <option value="abajo">⬇️ Abajo</option>
+                    <option value="izquierda">⬅️ Izquierda</option>
+                    <option value="derecha">➡️ Derecha</option>
+                  </select>
+                </div>
+              ))}
+            </div>
+            <p className="operator-order-hint">
+              Define el orden en que DFS explorará los vecinos de cada posición
+            </p>
+          </div>
+        )}
 
         <div className="action-buttons">
           <button
