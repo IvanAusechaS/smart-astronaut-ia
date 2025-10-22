@@ -49,10 +49,11 @@ class TestAlgorithmsListEndpoint:
         data = response.json()
         
         algorithms = data["algorithms"]
+        algorithm_names = [algo["name"] for algo in algorithms]
         expected_algorithms = ["bfs", "dfs", "uniform_cost", "greedy", "astar"]
         
         for algo in expected_algorithms:
-            assert algo in algorithms, f"Se esperaba encontrar el algoritmo '{algo}'"
+            assert algo in algorithm_names, f"Se esperaba encontrar el algoritmo '{algo}'"
     
     def test_algorithms_count(self, client):
         """
@@ -116,11 +117,15 @@ class TestAlgorithmsListEndpoint:
         assert isinstance(data["algorithms"], list)
         assert len(data["algorithms"]) > 0, "Debe haber al menos un algoritmo"
         
-        # Cada algoritmo debe ser un string
+        # Cada algoritmo debe ser un dict con name, display_name, description, available
         for algo in data["algorithms"]:
-            assert isinstance(algo, str), f"Nombre de algoritmo debe ser string, se obtuvo {type(algo)}"
-            assert len(algo) > 0, "Nombre de algoritmo no puede estar vacio"
-
+            assert isinstance(algo, dict), f"Algoritmo debe ser dict, se obtuvo {type(algo)}"
+            assert "name" in algo, "Algoritmo debe tener campo 'name'"
+            assert "display_name" in algo, "Algoritmo debe tener campo 'display_name'"
+            assert "description" in algo, "Algoritmo debe tener campo 'description'"
+            assert "available" in algo, "Algoritmo debe tener campo 'available'"
+            assert isinstance(algo["name"], str), "Campo 'name' debe ser string"
+            assert len(algo["name"]) > 0, "Nombre de algoritmo no puede estar vacio"
 
 class TestAlgorithmDetailsEndpoint:
     """Tests para el endpoint GET /api/algorithm/{name}"""
@@ -154,9 +159,10 @@ class TestAlgorithmDetailsEndpoint:
         
         # Verificar cada uno
         for algo in algorithms:
-            response = client.get(f"/api/algorithm/{algo}")
-            assert response.status_code == 200, f"Algoritmo {algo} debe estar disponible"
+            algo_name = algo["name"] if isinstance(algo, dict) else algo
+            response = client.get(f"/api/algorithm/{algo_name}")
+            assert response.status_code == 200, f"Algoritmo {algo_name} debe estar disponible"
             
             data = response.json()
-            assert data["name"] == algo
+            assert data["name"] == algo_name
             assert data["available"] is True
