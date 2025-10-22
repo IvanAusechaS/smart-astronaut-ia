@@ -238,12 +238,101 @@ Cuando haces push a la rama `main`:
 
 Los pull requests solo ejecutan las pruebas sin desplegar.
 
+## Algoritmos Implementados
+
+### 🔍 DFS (Depth-First Search) - Búsqueda en Profundidad
+
+**Autor:** Jose Martínez
+
+#### Descripción
+Implementación del algoritmo de búsqueda en profundidad evitando ciclos para el problema del Smart Astronaut. El algoritmo explora el espacio de búsqueda en profundidad utilizando una estructura de pila (LIFO), buscando recolectar las 3 muestras científicas en el mapa marciano.
+
+#### Características Principales
+
+1. **Estructura de Datos: PILA (LIFO)**
+   - Utiliza una pila para explorar en profundidad primero
+   - Los nodos se expanden desde el más profundo disponible
+
+2. **Prevención de Ciclos con Estados**
+   ```python
+   estado = (posición, muestras_recolectadas, combustible)
+   ```
+   - Evita visitar el mismo estado dos veces
+   - Un estado es único por su combinación de posición + muestras + combustible
+
+3. **Permite Revisitar Posiciones**
+   - Cumple con la regla: "cuando el agente tome la nave o una muestra científica, debe dejar que se devuelva"
+   - Puede volver a una posición si el estado (muestras o combustible) cambió
+   - Ejemplo: Visitar (2,3) con 0 muestras ≠ Visitar (2,3) con 1 muestra
+
+4. **Orden de Expansión**
+   - Expande nodos en orden: **Arriba → Abajo → Izquierda → Derecha**
+   - Respeta el orden estándar de movimientos del problema
+
+5. **Cálculo de Costos por Terreno**
+   - Terreno libre (0, 2, 6): costo 1
+   - Terreno rocoso (3): costo 3
+   - Terreno volcánico (4): costo 5
+   - Nave espacial (5): costo 1 + recarga 20 de combustible
+   - Con combustible activo: costo 0.5 por movimiento
+
+#### Uso
+
+```python
+from algorithms import dfs
+
+# Definir parámetros
+params = {
+    "map": mapa_10x10,  # Matriz 10x10 con valores 0-6
+    "start": [9, 0]      # Posición inicial [fila, columna]
+}
+
+# Ejecutar algoritmo
+resultado = dfs.solve(params)
+
+# Resultado
+{
+    "path": [[9,0], [8,0], ...],        # Camino completo
+    "nodes_expanded": 180,               # Nodos explorados
+    "cost": 139.0,                       # Costo total del camino
+    "max_depth": 146,                    # Profundidad máxima alcanzada
+    "message": "Solución encontrada..."  # Mensaje de estado
+}
+```
+
+#### Validaciones
+
+- ✅ Valida que el mapa sea 10x10
+- ✅ Verifica que existan exactamente 3 muestras (valor 6)
+- ✅ Evita obstáculos (valor 1)
+- ✅ Previene ciclos infinitos
+
+#### Rendimiento (Pruebas)
+
+| Tipo de Mapa | Nodos Expandidos | Profundidad | Costo |
+|--------------|------------------|-------------|-------|
+| Simple (línea) | 23 | 22 | 21 |
+| Con obstáculos | 170 | - | 68 |
+| Nave + terrenos | 105 | - | 75.0 |
+| Mapa complejo | 180 | 146 | 139.0 |
+
+#### Archivos Relacionados
+
+- **Implementación:** `smart_backend/algorithms/dfs.py`
+- **Algoritmos hermanos:** `bfs.py`, `uniform_cost.py`, `astar.py`, `greedy.py`
+
+---
+
 ## Proximos Pasos
 
-1. **Implementar algoritmos de búsqueda** en `smart_backend/algorithms/`
-2. **Crear interfaz de usuario** para visualizar mapas y soluciones
-3. **Agregar endpoints** para ejecutar algoritmos
-4. **Implementar visualización** de recorridos y estados
+1. ✅ **Algoritmo DFS implementado** (Jose Martínez)
+2. **Implementar algoritmos restantes** en `smart_backend/algorithms/`
+   - Uniform Cost Search
+   - A* (A-Star)
+   - Greedy Search
+3. **Crear interfaz de usuario** para visualizar mapas y soluciones
+4. **Agregar endpoints** para ejecutar algoritmos
+5. **Implementar visualización** de recorridos y estados
 
 ## Contribuir
 
@@ -257,9 +346,10 @@ Los pull requests solo ejecutan las pruebas sin desplegar.
 
 Este proyecto es de código abierto.
 
-## Autor
+## Autores
 
-**Ivan Ausecha**
+- **Ivan Ausecha** - Estructura del proyecto y configuración
+- **Jose Martínez** - Implementación de algoritmo DFS
 
 ---
 
