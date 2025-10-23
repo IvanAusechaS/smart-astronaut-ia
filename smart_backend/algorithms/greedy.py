@@ -85,7 +85,10 @@ def solve(params: dict):
         return min_distance
     
     # Initial state: (position, collected_samples_frozenset, fuel, has_taken_ship)
-    initial_state = (start, frozenset(), 0, False)
+    # Check if astronaut starts on the ship
+    initial_fuel = 20 if mapa[start[0]][start[1]] == 5 else 0
+    initial_has_taken_ship = mapa[start[0]][start[1]] == 5
+    initial_state = (start, frozenset(), initial_fuel, initial_has_taken_ship)
     
     # Priority queue for Greedy: (heuristic_value, state, path)
     # We use a min-heap, so lower heuristic values have higher priority
