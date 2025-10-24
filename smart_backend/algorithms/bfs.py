@@ -74,8 +74,6 @@ def solve(params: dict):
     
     while cola:
         (pos_actual, muestras_recolectadas, combustible), camino = cola.popleft()
-        nodos_expandidos += 1
-        max_profundidad = max(max_profundidad, len(camino))
         
         # Verificar si estamos en una muestra y aún no la hemos recolectado
         if pos_actual in muestras and pos_actual not in muestras_recolectadas:
@@ -120,6 +118,10 @@ def solve(params: dict):
                 "max_depth": max_profundidad,
                 "message": "Solución encontrada - 3 muestras recolectadas"
             }
+        
+        # Solo contar como expandido si no es solución (vamos a expandir sus vecinos)
+        nodos_expandidos += 1
+        max_profundidad = max(max_profundidad, len(camino) - 1)  # -1 porque contamos movimientos, no posiciones
         
         # Expandir vecinos
         for vecino in get_neighbors(pos_actual, mapa):

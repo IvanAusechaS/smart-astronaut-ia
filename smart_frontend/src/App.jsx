@@ -30,6 +30,13 @@ function Dashboard() {
     return () => clearInterval(interval);
   }, [backendUrl]);
 
+  // Limpiar resultados cuando no hay mapa cargado
+  useEffect(() => {
+    if (!mapData) {
+      setPathResults(null);
+    }
+  }, [mapData]);
+
   const handleResultsChange = (results) => {
     setPathResults(results);
   };
