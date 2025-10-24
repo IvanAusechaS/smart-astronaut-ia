@@ -69,7 +69,7 @@ def solve(params: dict):
     
     def heuristic(pos, collected_samples, all_samples):
         """
-        Heuristic function: Manhattan distance to the closest uncollected sample.
+        Heuristic function: Manhattan distance to the closest uncollected sample divided by 2.
         Returns 0 if all samples are collected.
         """
         if len(collected_samples) == 3:
@@ -82,7 +82,7 @@ def solve(params: dict):
             distance = abs(pos[0] - sample[0]) + abs(pos[1] - sample[1])
             min_distance = min(min_distance, distance)
         
-        return min_distance
+        return min_distance / 2
     
     # Initial state: (position, collected_samples_frozenset, fuel, has_taken_ship)
     initial_state = (start, frozenset(), 0, False)
@@ -100,7 +100,6 @@ def solve(params: dict):
     while priority_queue:
         # Pop the node with the lowest heuristic value (most promising)
         heuristic_val, (pos_actual, collected_samples, fuel, has_taken_ship), path = heapq.heappop(priority_queue)
-        nodes_expanded += 1
         max_depth = max(max_depth, len(path))
         
         # Check if we're at a sample and haven't collected it yet
@@ -147,7 +146,8 @@ def solve(params: dict):
                 "message": "Solution found - 3 samples collected"
             }
         
-        # Expand neighbors
+        # Expand neighbors - only count as expanded if we actually generate children
+        neighbors_added = 0
         for neighbor in get_neighbors(pos_actual, mapa):
             # Calculate new fuel and ship status
             new_fuel = fuel
@@ -168,6 +168,11 @@ def solve(params: dict):
                 # Calculate heuristic for the new state
                 h_val = heuristic(neighbor, collected_samples, samples)
                 heapq.heappush(priority_queue, (h_val, new_state, path + [neighbor]))
+                neighbors_added += 1
+        
+        # Only count as expanded if we actually added neighbors to the queue
+        if neighbors_added > 0:
+            nodes_expanded += 1
     
     # No solution found
     return {
