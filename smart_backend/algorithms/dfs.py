@@ -89,10 +89,9 @@ def solve(params: dict):
     
     # Conjunto de estados visitados para evitar ciclos
     # Estado = (posición, muestras, ha_tomado_nave)
-    # ha_tomado_nave indica si YA tomó la nave anteriormente (solo puede tomarla una vez)
-    # Esto permite: visitar una posición SIN haber tomado nave, luego CON nave tomada
-    # Pero NO permite: tomar la nave múltiples veces
-    visitados = {estado_inicial}
+    # IMPORTANTE: Se marca como visitado SOLO cuando se EXPANDE (pop), NO cuando se agrega (push)
+    # Esto evita que se marquen nodos como visitados antes de explorarlos realmente
+    visitados = set()
     
     nodos_expandidos = 0
     max_profundidad = 0
@@ -101,6 +100,18 @@ def solve(params: dict):
     while pila:
         # Pop desde el final (LIFO - Last In First Out)
         (pos_actual, muestras_recolectadas, ha_tomado_nave), camino, combustible = pila.pop()
+        
+        # CRITICAL FIX: Marcar como visitado AQUÍ, cuando expandimos el nodo
+        # NO antes de agregarlo a la pila
+        estado_actual = (pos_actual, muestras_recolectadas, ha_tomado_nave)
+        
+        # Si ya visitamos este estado, saltarlo (puede estar duplicado en la pila)
+        if estado_actual in visitados:
+            continue
+            
+        # Marcar como visitado AHORA que lo vamos a expandir
+        visitados.add(estado_actual)
+        
         nodos_expandidos += 1
         max_profundidad = max(max_profundidad, len(camino))
         
@@ -173,15 +184,11 @@ def solve(params: dict):
             # Esto evita que pueda tomar la nave múltiples veces
             nuevo_estado = (vecino, muestras_recolectadas, ha_tomado_nave_nuevo)
             
-            # EVITAR CICLOS MEJORADO:
-            # - Puede visitar una posición sin haber tomado la nave
-            # - Puede visitar la MISMA posición después de tomar la nave (solo UNA vez)
-            # - Puede visitar con diferentes muestras recolectadas
-            # - La nave solo se puede tomar UNA vez en todo el recorrido
-            # - PERO NO puede visitar la misma (posición + ha_tomado_nave + muestras) dos veces
-            if nuevo_estado not in visitados:
-                visitados.add(nuevo_estado)
-                pila.append((nuevo_estado, camino + [vecino], nuevo_combustible))
+            # IMPORTANT FIX: NO marcar como visitado aquí
+            # Solo agregamos a la pila, se marcará como visitado cuando se expanda
+            # Esto permite que el DFS explore correctamente en profundidad
+            # sin "contaminar" nodos que aún no ha visitado realmente
+            pila.append((nuevo_estado, camino + [vecino], nuevo_combustible))
     
     # No se encontró solución
     return {
