@@ -113,7 +113,7 @@ def solve(params: dict):
         visitados.add(estado_actual)
         
         nodos_expandidos += 1
-        max_profundidad = max(max_profundidad, len(camino))
+        max_profundidad = max(max_profundidad, len(camino))-1
         
         # Verificar si estamos en una muestra y aún no la hemos recolectado
         if pos_actual in muestras and pos_actual not in muestras_recolectadas:

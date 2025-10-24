@@ -281,7 +281,7 @@ const AlgorithmSelector = ({ onResultsChange }) => {
             <div className="result-item">
               <span className="result-label">Profundidad</span>
               <span className="result-value">
-                {results.path ? results.path.length - 1 : 0}
+                {results.max_depth || 0}
               </span>
             </div>
 
