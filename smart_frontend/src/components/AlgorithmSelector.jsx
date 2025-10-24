@@ -36,6 +36,16 @@ const AlgorithmSelector = ({ onResultsChange }) => {
     }
   }, [results, onResultsChange]);
 
+  // Limpiar resultados cuando no hay mapa cargado
+  useEffect(() => {
+    if (!mapData) {
+      setResults(null);
+      setError(null);
+      setSearchType('');
+      setSelectedAlgorithm('');
+    }
+  }, [mapData]);
+
   const loadAlgorithms = async () => {
     try {
       const data = await getAlgorithms();
@@ -271,7 +281,7 @@ const AlgorithmSelector = ({ onResultsChange }) => {
             <div className="result-item">
               <span className="result-label">Profundidad</span>
               <span className="result-value">
-                {results.path ? results.path.length : 0}
+                {results.path ? results.path.length - 1 : 0}
               </span>
             </div>
 
