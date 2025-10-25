@@ -119,11 +119,10 @@ def solve(params: dict):
                 "message": "Solución encontrada - 3 muestras recolectadas"
             }
         
-        # Solo contar como expandido si no es solución (vamos a expandir sus vecinos)
-        nodos_expandidos += 1
         max_profundidad = max(max_profundidad, len(camino) - 1)  # -1 porque contamos movimientos, no posiciones
         
-        # Expandir vecinos
+        # Expandir vecinos - solo contar como expandido si realmente generamos hijos nuevos
+        vecinos_agregados = 0
         for vecino in get_neighbors(pos_actual, mapa):
             # Calcular nuevo combustible
             nuevo_combustible = combustible
@@ -139,6 +138,11 @@ def solve(params: dict):
             if nuevo_estado not in visitados:
                 visitados.add(nuevo_estado)
                 cola.append((nuevo_estado, camino + [vecino]))
+                vecinos_agregados += 1
+        
+        # Solo contar como expandido si realmente agregamos vecinos nuevos
+        if vecinos_agregados > 0:
+            nodos_expandidos += 1
     
     # No se encontró solución
     return {

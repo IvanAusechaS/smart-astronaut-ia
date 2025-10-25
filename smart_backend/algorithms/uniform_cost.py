@@ -109,7 +109,6 @@ def solve(params: dict):
         # Extraer el nodo con el menor costo
         cola_prioridad.sort(key=lambda x: x[2])  # Ordenar por costo
         (pos_actual, muestras_recolectadas, combustible), camino, costo_acumulado = cola_prioridad.pop(0)
-        nodos_expandidos += 1
         max_profundidad = max(max_profundidad, len(camino))-1
         
         # Verificar si estamos en una muestra y aún no la hemos recolectado
@@ -130,7 +129,8 @@ def solve(params: dict):
             }
         
         
-        # Expandir vecinos
+        # Expandir vecinos - solo contar como expandido si realmente generamos hijos nuevos
+        vecinos_agregados = 0
         for vecino in get_neighbors(pos_actual, mapa, operator_order):  # Pasar operator_order
             # Calcular costo del movimiento ANTES de actualizar combustible
             costo_movimiento = calcular_costo_movimiento(vecino, combustible, mapa)
@@ -150,6 +150,11 @@ def solve(params: dict):
             if nuevo_estado not in visitados:
                 visitados.add(nuevo_estado)
                 cola_prioridad.append((nuevo_estado, camino + [vecino], nuevo_costo))  # ✅ Agregar nuevo_costo
+                vecinos_agregados += 1
+        
+        # Solo contar como expandido si realmente agregamos vecinos nuevos
+        if vecinos_agregados > 0:
+            nodos_expandidos += 1
                             
     # No se encontró solución
     return {
