@@ -100,7 +100,7 @@ def solve(params: dict):
     while priority_queue:
         # Pop the node with the lowest heuristic value (most promising)
         heuristic_val, (pos_actual, collected_samples, fuel, has_taken_ship), path = heapq.heappop(priority_queue)
-        max_depth = max(max_depth, len(path))
+        max_depth = max(max_depth, len(path))-1
         
         # Check if we're at a sample and haven't collected it yet
         if pos_actual in samples and pos_actual not in collected_samples:

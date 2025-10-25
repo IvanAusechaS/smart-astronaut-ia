@@ -112,8 +112,7 @@ def solve(params: dict):
         # Marcar como visitado AHORA que lo vamos a expandir
         visitados.add(estado_actual)
         
-        nodos_expandidos += 1
-        max_profundidad = max(max_profundidad, len(camino))
+        max_profundidad = max(max_profundidad, len(camino))-1
         
         # Verificar si estamos en una muestra y aún no la hemos recolectado
         if pos_actual in muestras and pos_actual not in muestras_recolectadas:
@@ -159,7 +158,8 @@ def solve(params: dict):
                 "message": "Solución encontrada - 3 muestras recolectadas"
             }
         
-        # Expandir vecinos y agregarlos a la pila
+        # Expandir vecinos y agregarlos a la pila - solo contar como expandido si realmente generamos hijos nuevos
+        vecinos_agregados = 0
         vecinos = get_neighbors(pos_actual, mapa, operator_order)
         
         # Para DFS con pila (LIFO), agregamos en orden INVERSO
@@ -189,6 +189,11 @@ def solve(params: dict):
             # Esto permite que el DFS explore correctamente en profundidad
             # sin "contaminar" nodos que aún no ha visitado realmente
             pila.append((nuevo_estado, camino + [vecino], nuevo_combustible))
+            vecinos_agregados += 1
+        
+        # Solo contar como expandido si realmente agregamos vecinos nuevos
+        if vecinos_agregados > 0:
+            nodos_expandidos += 1
     
     # No se encontró solución
     return {

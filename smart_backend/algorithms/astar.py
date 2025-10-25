@@ -150,8 +150,7 @@ def solve(params: dict):
             continue
             
         visitados[estado_key] = g_actual
-        nodos_expandidos += 1
-        max_profundidad = max(max_profundidad, len(camino))
+        max_profundidad = max(max_profundidad, len(camino))-1
         
         # Verificar si estamos en una muestra y aún no la hemos recolectado
         if pos_actual in muestras and pos_actual not in muestras_recolectadas:
@@ -169,7 +168,8 @@ def solve(params: dict):
                 "message": "Solución óptima encontrada - 3 muestras recolectadas"
             }
         
-        # Expandir vecinos
+        # Expandir vecinos - solo contar como expandido si realmente generamos hijos nuevos
+        vecinos_agregados = 0
         for vecino in get_neighbors(pos_actual, mapa, operator_order):
             # Calcular g(vecino): costo real acumulado
             costo_movimiento = calcular_costo_movimiento(vecino, combustible, mapa)
@@ -198,6 +198,11 @@ def solve(params: dict):
                 
                 contador += 1
                 heapq.heappush(cola_prioridad, (nuevo_f, nuevo_g, contador, nuevo_estado, camino + [vecino], nuevo_combustible))
+                vecinos_agregados += 1
+        
+        # Solo contar como expandido si realmente agregamos vecinos nuevos
+        if vecinos_agregados > 0:
+            nodos_expandidos += 1
     
     # No se encontró solución
     return {
