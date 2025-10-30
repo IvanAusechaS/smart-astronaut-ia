@@ -92,8 +92,9 @@ def solve(params: dict):
     # We use a min-heap, so lower heuristic values have higher priority
     priority_queue = [(heuristic(start, frozenset(), samples), initial_state, [start])]
     
-    # Set of visited states to avoid cycles
-    visited = {initial_state}
+    # Poda por mejor combustible visto para una misma clave lógica de estado
+    # Clave: (position, collected_samples, has_taken_ship) -> best fuel observed
+    best_fuel_seen = { (start, frozenset(), False): 0 }
     nodes_expanded = 0
     max_depth = 0
     
@@ -162,9 +163,11 @@ def solve(params: dict):
             
             new_state = (neighbor, collected_samples, new_fuel, has_taken_ship_new)
             
-            # Only visit if we haven't been in this exact state
-            if new_state not in visited:
-                visited.add(new_state)
+            # Poda: solo encolar si traemos mejor combustible que el mejor visto
+            key = (neighbor, collected_samples, has_taken_ship_new)
+            prev_best = best_fuel_seen.get(key, -1)
+            if new_fuel > prev_best:
+                best_fuel_seen[key] = new_fuel
                 # Calculate heuristic for the new state
                 h_val = heuristic(neighbor, collected_samples, samples)
                 heapq.heappush(priority_queue, (h_val, new_state, path + [neighbor]))
