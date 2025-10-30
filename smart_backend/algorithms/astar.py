@@ -123,16 +123,16 @@ def solve(params: dict):
         # Multiplicamos por 0.5 (costo mínimo por movimiento) para mejor estimación
         return min_distancia * 0.5
     
-    # Estado: (posición, muestras_recolectadas, ha_tomado_nave)
-    estado_inicial = (start, frozenset(), False)
+    # Estado: (posición, muestras_recolectadas, combustible, estacion_usada)
+    estado_inicial = (start, frozenset(), 0, False)
     
-    # Cola de prioridad para A*: (f, g, contador, estado, camino, combustible)
+    # Cola de prioridad para A*: (f, g, contador, estado, camino)
     # f = g + h (costo total estimado)
     # g = costo real acumulado
     # contador para desempatar nodos con mismo f
     contador = 0
     h_inicial = heuristic(start, frozenset(), muestras)
-    cola_prioridad = [(h_inicial, 0, contador, estado_inicial, [start], 0)]
+    cola_prioridad = [(h_inicial, 0, contador, estado_inicial, [start])]
     
     # Diccionario para guardar el mejor costo g por estado
     visitados = {}
@@ -141,9 +141,9 @@ def solve(params: dict):
 
     while cola_prioridad:
         # Extraer el nodo con el menor f (g + h)
-        f_actual, g_actual, _, (pos_actual, muestras_recolectadas, ha_tomado_nave), camino, combustible = heapq.heappop(cola_prioridad)
+        f_actual, g_actual, _, (pos_actual, muestras_recolectadas, combustible, estacion_usada), camino = heapq.heappop(cola_prioridad)
         
-        estado_key = (pos_actual, muestras_recolectadas, ha_tomado_nave)
+        estado_key = (pos_actual, muestras_recolectadas, combustible, estacion_usada)
         
         # Si ya visitamos este estado con menor o igual costo g, skip
         if estado_key in visitados and visitados[estado_key] <= g_actual:
@@ -175,17 +175,18 @@ def solve(params: dict):
             costo_movimiento = calcular_costo_movimiento(vecino, combustible, mapa)
             nuevo_g = g_actual + costo_movimiento
             
-            # Actualizar combustible y estado de nave
+            # Actualizar combustible y estado de estación
             nuevo_combustible = combustible
-            ha_tomado_nave_nuevo = ha_tomado_nave
+            nueva_estacion_usada = estacion_usada
             
-            if mapa[vecino[0]][vecino[1]] == 5 and not ha_tomado_nave:
+            # Solo recargar si estamos en estación (5) y NO la hemos usado antes
+            if mapa[vecino[0]][vecino[1]] == 5 and not estacion_usada:
                 nuevo_combustible = 20
-                ha_tomado_nave_nuevo = True
+                nueva_estacion_usada = True  # Marcar que ya usamos la estación
             elif nuevo_combustible > 0:
                 nuevo_combustible -= 1
             
-            nuevo_estado = (vecino, muestras_recolectadas, ha_tomado_nave_nuevo)
+            nuevo_estado = (vecino, muestras_recolectadas, nuevo_combustible, nueva_estacion_usada)
             nuevo_estado_key = nuevo_estado
             
             # Solo agregar si no hemos visitado o encontramos un camino más barato
@@ -197,7 +198,7 @@ def solve(params: dict):
                 nuevo_f = nuevo_g + nuevo_h
                 
                 contador += 1
-                heapq.heappush(cola_prioridad, (nuevo_f, nuevo_g, contador, nuevo_estado, camino + [vecino], nuevo_combustible))
+                heapq.heappush(cola_prioridad, (nuevo_f, nuevo_g, contador, nuevo_estado, camino + [vecino]))
                 vecinos_agregados += 1
         
         # Solo contar como expandido si realmente agregamos vecinos nuevos
