@@ -43,6 +43,7 @@ def solve(params: dict):
             if mapa[i][j] == 6:
                 muestras.add((i, j))
     
+    # Validar que haya exactamente 3 muestras
     if len(muestras) != 3:
         return {
             "path": [],
@@ -56,9 +57,20 @@ def solve(params: dict):
     operator_order = params.get("operator_order", ['arriba', 'abajo', 'izquierda', 'derecha'])
     
     def get_neighbors(pos, mapa, order):
-        """Obtiene los vecinos válidos de una posición"""
+        """
+        Obtiene los vecinos válidos de una posición.
+        El orden se determina por el parámetro 'order'
+        Args:
+            pos: Tupla (fila, columna) de la posición actual
+            mapa: Mapa/grafo para determinar obstáculos
+            order: Lista con el orden de movimientos a considerar
+        Returns:
+            list: Lista de posiciones vecinas válidas
+        """
+        
         fila, col = pos
         
+        # Mapeo de nombres a movimientos
         movimientos = {
             'arriba': (-1, 0),
             'abajo': (1, 0),
@@ -66,14 +78,19 @@ def solve(params: dict):
             'derecha': (0, 1)
         }
         
+        # Crear lista de direcciones según el orden especificado
         direcciones = [movimientos[op] for op in order if op in movimientos]
         vecinos = []
         
+        # Explorar cada dirección
         for df, dc in direcciones:
             nueva_fila, nueva_col = fila + df, col + dc
             
+            # Verificar límites del mapa
             if 0 <= nueva_fila < 10 and 0 <= nueva_col < 10:
+                # Verificar que no sea obstáculo (valor 1)
                 if mapa[nueva_fila][nueva_col] != 1:
+                    # Agregar vecino válido
                     vecinos.append((nueva_fila, nueva_col))
         
         return vecinos
@@ -82,7 +99,16 @@ def solve(params: dict):
         """
         Calcula g(n): el costo real de moverse a una posición
         (Componente de Uniform Cost)
+        
+        Args:
+            pos: Tupla (fila, columna) de la posición destino
+            combustible_antes: Cantidad de combustible antes del movimiento
+            mapa: Mapa/grafo para determinar el tipo de terreno
+
+        Returns:
+            float: Costo del movimiento
         """
+        
         fila, col = pos
         celda = mapa[fila][col]
         
@@ -129,9 +155,11 @@ def solve(params: dict):
     # Cola de prioridad para A*: (f, g, contador, estado, camino)
     # f = g + h (costo total estimado)
     # g = costo real acumulado
+    
     # contador para desempatar nodos con mismo f
     contador = 0
     h_inicial = heuristic(start, frozenset(), muestras)
+    # (f, g, contador, estado, camino)
     cola_prioridad = [(h_inicial, 0, contador, estado_inicial, [start])]
     
     # Diccionario para guardar el mejor costo g por estado
@@ -141,16 +169,18 @@ def solve(params: dict):
 
     while cola_prioridad:
         # Extraer el nodo con el menor f (g + h)
+        # - (f, g, contador, estado, camino)
         f_actual, g_actual, _, (pos_actual, muestras_recolectadas, combustible, estacion_usada), camino = heapq.heappop(cola_prioridad)
         
         estado_key = (pos_actual, muestras_recolectadas, combustible, estacion_usada)
         
         # Si ya visitamos este estado con menor o igual costo g, skip
+        # Esto asegura que siempre expandimos el camino más barato a cada estado
         if estado_key in visitados and visitados[estado_key] <= g_actual:
             continue
             
         visitados[estado_key] = g_actual
-        max_profundidad = max(max_profundidad, len(camino))-1
+        max_profundidad = max(max_profundidad, len(camino)) - 1
         
         # Verificar si estamos en una muestra y aún no la hemos recolectado
         if pos_actual in muestras and pos_actual not in muestras_recolectadas:
@@ -171,6 +201,10 @@ def solve(params: dict):
         # Expandir vecinos - solo contar como expandido si realmente generamos hijos nuevos
         vecinos_agregados = 0
         for vecino in get_neighbors(pos_actual, mapa, operator_order):
+            # En caso de querer evitar devolverse a posiciones ya visitadas en este camino
+            # if vecino in camino:
+            #    continue
+            
             # Calcular g(vecino): costo real acumulado
             costo_movimiento = calcular_costo_movimiento(vecino, combustible, mapa)
             nuevo_g = g_actual + costo_movimiento
@@ -190,6 +224,8 @@ def solve(params: dict):
             nuevo_estado_key = nuevo_estado
             
             # Solo agregar si no hemos visitado o encontramos un camino más barato
+            # - Componente de no revisitar estados con mayor costo g
+            # - SÍ permite volver a posiciones anteriores en el mismo camino
             if nuevo_estado_key not in visitados or visitados[nuevo_estado_key] > nuevo_g:
                 # Calcular h(vecino): estimación heurística
                 nuevo_h = heuristic(vecino, muestras_recolectadas, muestras)
