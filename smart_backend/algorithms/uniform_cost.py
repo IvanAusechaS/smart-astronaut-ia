@@ -158,6 +158,10 @@ def solve(params: dict):
         # Expandir vecinos - solo contar como expandido si realmente generamos hijos nuevos
         vecinos_agregados = 0
         for vecino in get_neighbors(pos_actual, mapa, operator_order):
+            # En caso de querer evitar devolverse a posiciones ya visitadas en este camino
+            # if vecino in camino:
+            #    continue
+            
             # Calcular costo del movimiento ANTES de actualizar combustible
             costo_movimiento = calcular_costo_movimiento(vecino, combustible, mapa)
             nuevo_costo = costo_acumulado + costo_movimiento
